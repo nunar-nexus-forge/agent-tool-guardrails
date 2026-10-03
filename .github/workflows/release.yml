@@ -1,0 +1,30 @@
+# Publishes to PyPI when a tag like `v0.1.0` is pushed, using PyPI trusted publishing
+# (OIDC) so no API token is stored in GitHub.
+#
+# One-time setup on pypi.org: create the project, then Publishing -> add a GitHub
+# publisher for this repository, workflow file `release.yml`, environment `pypi`.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install 3.12
+      - run: uv build
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/

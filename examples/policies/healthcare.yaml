@@ -1,0 +1,32 @@
+version: 1
+name: healthcare
+description: Clinical assistant agents - purpose limitation, residency, evidence of consent, no PHI in outputs.
+defaults: {on_fail: deny, type: compliance}
+requirements:
+  - template: purpose_limitation
+    id: treatment-purposes-only
+    allowed_purposes: [treatment, billing, operations]
+    field: evidence.purpose
+  - template: data_residency
+    id: phi-stays-in-region
+    tools: [fetch_record, store_note]
+    allowed_regions: [us-east, us-west]
+    field: evidence.region
+  - template: evidence_required
+    id: consent-on-file
+    tools: [share_record]
+    keys: [consent_id, requester]
+  - id: minimum-necessary
+    title: Only the requested sections may be fetched
+    type: privacy
+    tools: [fetch_record]
+    predicate: "len(args.sections) <= 3 and not (\"psychotherapy_notes\" in args.sections)"
+    citation: "HIPAA 45 CFR 164.502(b) minimum necessary"
+  - template: output_pii_redaction
+    id: no-phi-in-summaries
+    tools: [summarise]
+  - template: forbidden_patterns
+    id: no-bulk-export
+    tools: [run_query]
+    field: args.query
+    patterns: ["(?i)select\\s+\\*\\s+from\\s+patients", "(?i)limit\\s+[0-9]{4,}"]

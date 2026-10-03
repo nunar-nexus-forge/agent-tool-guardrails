@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use agent-tool-guardrails, please cite it as below."
+type: software
+title: "agent-tool-guardrails (Typed Rails): typed policy rails for agent-tool calls with a policy compiler, evidence store and MCP proxy"
+version: 0.1.0
+date-released: "2026-09-27"
+license: Apache-2.0
+repository-code: "https://github.com/nunar-nexus-forge/agent-tool-guardrails"
+authors:
+  - name: nunar-nexus-forge
+keywords:
+  - guardrails
+  - policy compliance
+  - multi-agent systems
+  - model context protocol
+  - audit evidence

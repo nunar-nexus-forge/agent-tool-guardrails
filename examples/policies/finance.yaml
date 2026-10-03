@@ -1,0 +1,49 @@
+version: 1
+name: finance
+description: Treasury and reporting agents - GDPR-aware exports, human approval for large transfers, no destructive tools.
+defaults: {on_fail: deny}
+requirements:
+  - id: gdpr-anonymised-exports
+    title: Exports must be anonymised
+    type: privacy
+    tools: [export_report, generate_invoice]
+    predicate: "evidence.anonymised == true"
+    evidence: [anonymised]
+    on_fail: {action: redact, fields: [args.customer.email, args.customer.name, args.customer.phone]}
+    citation: "GDPR Art. 5(1)(c) data minimisation"
+  - template: approval_threshold
+    id: large-transfers
+    tool: transfer_funds
+    field: args.amount
+    threshold: 1000
+    citation: "Internal treasury policy 4.2"
+  - template: pii_redaction
+    id: pii-everywhere
+    tools: ["*"]
+  - template: output_pii_redaction
+    id: no-pii-in-results
+    tools: [lookup_customer, search]
+  - template: trust_gate
+    id: code-needs-trust
+    tools: [execute_code]
+    min_trust: 0.7
+  - template: sandbox_required
+    id: code-needs-sandbox
+    tools: [execute_code]
+  - template: rate_limit
+    id: search-budget
+    tools: [search]
+    max_calls: 30
+    per_seconds: 60
+  - template: deny_tools
+    id: no-destruction
+    tools: [drop_database, delete_all_records]
+  - template: time_window
+    id: business-hours-transfers
+    tools: [transfer_funds]
+    hours: [7, 20]
+    weekdays: [0, 1, 2, 3, 4]
+  - template: allowed_tools
+    id: junior-scope
+    agents: [junior-analyst]
+    tools: [search, lookup_customer, summarise]
