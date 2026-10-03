@@ -43,6 +43,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "**/pyproject.toml"  # uv.lock is not committed
+          python-version: ${{ matrix.python }}  # one cache key per matrix entry
       - run: uv python install ${{ matrix.python }}
       - run: uv sync --python ${{ matrix.python }} --group dev --group frameworks
       - run: uv run --python ${{ matrix.python }} pytest --cov --cov-report=xml
