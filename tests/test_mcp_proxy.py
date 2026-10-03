@@ -255,3 +255,23 @@ def test_proxy_end_to_end(tmp_path):
         and ("echo", "pre", "redact") in kinds
         and ("lookup", "post", "redact") in kinds
     )
+
+
+def test_proxy_terminates_a_server_that_ignores_stdin(rails):
+    """After the client disconnects, a server that never exits is terminated after the grace period."""
+    import io
+    import time
+
+    from typed_rails.mcp_proxy import run_proxy
+
+    engine = PolicyEngine(rails)
+    started = time.monotonic()
+    code = run_proxy(
+        engine,
+        [sys.executable, "-c", "import time; time.sleep(60)"],
+        stdin=io.BytesIO(b""),
+        stdout=io.BytesIO(),
+        log_stream=io.StringIO(),
+        exit_grace_s=0.5,
+    )
+    assert code != 0 and time.monotonic() - started < 20

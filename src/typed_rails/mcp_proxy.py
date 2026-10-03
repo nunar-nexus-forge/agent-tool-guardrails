@@ -225,8 +225,10 @@ class MCPProxy:
         log_stream: TextIO | None = None,
         env: Mapping[str, str] | None = None,
         cwd: str | None = None,
+        exit_grace_s: float = 5.0,
     ) -> None:
         self.server_command = list(server_command)
+        self.exit_grace_s = exit_grace_s
         self._stdin = stdin
         self._stdout = stdout
         self._log_stream = log_stream if log_stream is not None else sys.stderr
@@ -317,9 +319,15 @@ class MCPProxy:
         for task in pending:
             task.cancel()
         if self.process.returncode is None:
-            with _suppress():
-                self.process.terminate()
-                await asyncio.wait_for(self.process.wait(), timeout=5.0)
+            # The server's stdin is closed by now; give it a moment to exit on its own before
+            # terminating it (a terminated process reports exit code 1 on Windows, which would
+            # otherwise become the proxy's exit code after a clean session).
+            try:
+                await asyncio.wait_for(self.process.wait(), timeout=self.exit_grace_s)
+            except (asyncio.TimeoutError, TimeoutError):
+                with _suppress():
+                    self.process.terminate()
+                    await asyncio.wait_for(self.process.wait(), timeout=5.0)
         s = self.interceptor.stats
         self.log(
             f"done: {s.tool_calls} tool call(s), {s.allowed} allowed, "

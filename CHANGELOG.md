@@ -13,6 +13,11 @@ All notable changes to `agent-tool-guardrails` are documented here. The format f
   default clock is still `time.time`.
 
 ### Fixed
+- The MCP proxy terminated the server as soon as the client disconnected, before the server could
+  exit on its own; on Windows the terminated server reports exit code 1, which became the proxy's exit
+  code after a clean session. The proxy now waits for the server (`exit_grace_s`, default 5 s) and only
+  then terminates it.
+- CI caches uv by `pyproject.toml` (the lock file is not committed), which newer `setup-uv` releases require.
 - Approving a `require_approval` decision (`PolicyEngine.approve`, an approval handler or the MCP
   proxy) appended the approval note to a `reasons` list that the decision's evidence record still
   referenced, so `EvidenceStore.verify()` reported that record as tampered. Evidence records now
