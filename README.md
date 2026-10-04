@@ -3,7 +3,7 @@
 **Typed policy rails for agent-tool calls: compile declarative requirements into executable `⟨Type, Predicate, Evidence, Action⟩` rails, enforce them in-process or through an MCP proxy, and keep a tamper-evident evidence trail.**
 
 [![CI](https://github.com/nunar-nexus-forge/agent-tool-guardrails/actions/workflows/ci.yml/badge.svg)](https://github.com/nunar-nexus-forge/agent-tool-guardrails/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/agent-tool-guardrails.svg)](https://pypi.org/project/agent-tool-guardrails/)
+[![PyPI](https://img.shields.io/pypi/v/agent-tool-guardrails.svg?label=PyPI)](https://pypi.org/project/agent-tool-guardrails/)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green.svg)](LICENSE)
 
